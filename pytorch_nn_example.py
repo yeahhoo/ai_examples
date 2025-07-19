@@ -89,42 +89,79 @@ class MyPyTorch(L.LightningModule):
 
         if loss < 0.002:
             print(f'Stopping early since the loss is small. Epoch: {self.current_epoch}')
-            print("\n=== Parameter values in net ===\n")
-            for name, param in self.named_parameters():
-                print(f"{name}: {param.shape}\n{param.data}\n")
             self.trainer.should_stop = True
 
         return loss
     
+    def print_out_weighs(self):
+        print("\n=== Parameter values in net ===\n")
+        for name, param in self.named_parameters():
+            print(f"{name}: {param.shape}\n{param.data}\n")
+    
+    def mytrain(self, epochs, dataloader, learning_rate=0.01):
+        self.train()
+        optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
+
+        for epoch in range(epochs):
+            total_loss = 0
+
+            for x_batch, y_batch in dataloader:
+                optimizer.zero_grad()
+
+                y_pred = self(x_batch)
+                loss = F.mse_loss(y_pred, y_batch)
+                loss.backward()
+                optimizer.step()
+
+                total_loss += loss.item() #* x_batch.size(0)  # weighted by batch size for true total loss
+
+            avg_loss = total_loss #/ len(dataloader.dataset)
+
+            if epoch % 25 == 0:
+                print(f"Epoch {epoch}, Loss: {avg_loss:.6f}")
+
+            if avg_loss < 0.001:
+                print("Stopping early due to low loss.")
+                break
+    
 class GraphRender():
     # Visualize learned function
     def show(self, model, dataset, min_x, max_x, step):
-        x_test = torch.linspace(min_x, max_x, step).unsqueeze(1)
-        y_pred = model(x_test).detach().squeeze()
+        model.eval()
+        with torch.no_grad():
+            x_test = torch.linspace(min_x, max_x, step).unsqueeze(1)
+            y_pred = model(x_test).squeeze()
 
-        # Denormalize for visualization
-        def denorm(t):
-            return t
-            #return (t + 1) / 2
-        
-        x_test_denorm = denorm(x_test.squeeze()).numpy()
-        y_pred_denorm = denorm(y_pred).numpy()
+            # Denormalize for visualization
+            def denorm(t):
+                return t
+                #return (t + 1) / 2
 
-        plt.plot(x_test_denorm, y_pred_denorm, label="Prediction")
-        plt.scatter(dataset.x, dataset.y, color="red", label="Data Points")
-        plt.xlabel("x")
-        plt.ylabel("y")
-        plt.legend()
-        plt.title("Learned Function after Training")
-        plt.show()
+            x_test_denorm = denorm(x_test.squeeze()).numpy()
+            y_pred_denorm = denorm(y_pred).numpy()
+
+            plt.plot(x_test_denorm, y_pred_denorm, label="Prediction")
+            plt.scatter(dataset.x, dataset.y, color="red", label="Data Points")
+            plt.xlabel("x")
+            plt.ylabel("y")
+            plt.legend()
+            plt.title("Learned Function after Training")
+            plt.show()
 
 dataset = MyDataset()
 dataloader = DataLoader(dataset, batch_size=10, shuffle=True)
 
-# Train
+# Either use Lightning framework for teaching the network
+# model = MyPyTorch()
+# trainer = L.Trainer(max_epochs=5000)
+# trainer.fit(model, train_dataloaders=dataloader)
+
+# Or use the custom method for teaching
 model = MyPyTorch()
-trainer = L.Trainer(max_epochs=5000)
-trainer.fit(model, train_dataloaders=dataloader)
+model.mytrain(5000, dataloader)
+
+# Printing out weights
+model.print_out_weighs()
 
 # Render
 render = GraphRender()

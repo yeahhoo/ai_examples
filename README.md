@@ -40,3 +40,21 @@ pip install torch pytorch-lightning matplotlib
 ```bash
 python pytorch_nn_example.py
 ```
+
+### lightning_classification.py
+
+A simple example of neural network that solves a classification problem. In this example the data are generated in form of triplets (x, y, z) which are supplied to a function that calculates a value. After that the value is classified based on range it lies within (e.x. value in 0..10 -> 0 class, value in 11..20 -> 1 class, value in 21..30 -> 2 class, etc). This behavior is managed by the "DataGenerator" class.
+
+How to launch:
+
+1. install pytorch-lighting
+
+```bash
+pip install torch pytorch-lightning matplotlib
+```
+
+2. launch the script
+
+```bash
+python lightning_classification.py
+```

@@ -4,9 +4,10 @@ import torch.nn.functional as F
 from torch.optim import SGD
 import pytorch_lightning as L
 from torch.utils.data import Dataset, DataLoader
+import matplotlib
+matplotlib.use("TkAgg") # you can comment it out if you are on Windows
 import matplotlib.pyplot as plt
 import torch.optim as optim
-
 
 # Dataset with explicit float32 tensors
 class MyDataset(Dataset):

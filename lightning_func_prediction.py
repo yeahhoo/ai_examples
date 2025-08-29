@@ -4,6 +4,8 @@ import pytorch_lightning as pl
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+import matplotlib
+matplotlib.use("TkAgg") # you can comment it out if you are on Windows
 import matplotlib.pyplot as plt
 
 min_x = -10

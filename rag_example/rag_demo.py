@@ -127,6 +127,6 @@ if __name__ == "__main__":
     print("\n===================================")
     print("\n>>> TEST 2: Without vectorDB (no retrieval)")
     llm = get_local_llm()  # just raw LLM
-    raw_answer = llm.invoke("Suggest an algorithm for encryption of IoT devices")
+    raw_answer = llm.invoke("What is ag14?")
     print("LLM-only answer (no retrieval):", raw_answer)
 

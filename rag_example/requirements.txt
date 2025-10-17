@@ -15,6 +15,7 @@ chromadb==1.1.1
 click==8.3.0
 coloredlogs==15.0.1
 dataclasses-json==0.6.7
+diskcache==5.6.3
 distro==1.9.0
 durationpy==0.10
 filelock==3.19.1
@@ -49,6 +50,7 @@ langchain-core==0.3.79
 langchain-huggingface==0.3.1
 langchain-text-splitters==0.3.11
 langsmith==0.4.35
+llama_cpp_python==0.3.16
 markdown-it-py==4.0.0
 MarkupSafe==2.1.5
 marshmallow==3.26.1
@@ -124,3 +126,4 @@ websockets==15.0.1
 yarl==1.22.0
 zipp==3.23.0
 zstandard==0.25.0
+

@@ -2,13 +2,15 @@ import os
 from transformers import pipeline
 from langchain_community.vectorstores import Chroma
 from langchain.chains import RetrievalQA
+from langchain_community.llms import LlamaCpp
 from langchain.docstore.document import Document
 from langchain_huggingface import HuggingFaceEmbeddings, HuggingFacePipeline
 from langchain.prompts import PromptTemplate
+from huggingface_hub import snapshot_download
 
 
 # === Configuration ===
-DATA_DIR = "/home/sasha/rag_example/knowledge_base"
+DATA_DIR = "./knowledge_base"
 PERSIST_DIR = "vector_index"
 
 
@@ -59,9 +61,16 @@ def get_vectorstore(docs):
 
 # === Step 3: Set up a local LLM ===
 def get_local_llm():
-    model_name = "facebook/bart-large-cnn"
-    hf_pipeline = pipeline("text2text-generation", model=model_name, device_map="auto")
-    return HuggingFacePipeline(pipeline=hf_pipeline)
+    return LlamaCpp(
+        model_path=os.environ.get("MODEL_PATH") + "/mistral-7b-instruct-v0.2.Q4_K_M.gguf",
+        n_gpu_layers=-1,
+        max_tokens=500,
+        n_ctx=4096,
+        seed=42,
+        verbose=False,
+        temperature=0.3,
+        top_p=0.9,
+    )
 
 
 # === Step 4: Create RAG chain ===
@@ -69,14 +78,19 @@ def create_rag_chain(vectorstore):
     retriever = vectorstore.as_retriever(search_kwargs={"k": 2})
     llm = get_local_llm()
 
-    # Custom prompt template — no instructional prefix
-    template = """Context:
+    template = """<|user|>
+You are a concise and knowledgeable AI assistant.
+Use the provided context to answer the question directly.
+If the context does not contain the answer, simply respond with "I don't know." 
+Do not include any other text or explanations.
+
+Context:
 {context}
 
 Question:
 {question}
 
-Answer in a concise and direct way:"""
+<|assistant|>"""
 
     prompt = PromptTemplate(
         input_variables=["context", "question"],
@@ -88,6 +102,7 @@ Answer in a concise and direct way:"""
         retriever=retriever,
         chain_type="stuff",
         chain_type_kwargs={"prompt": prompt},
+        return_source_documents=False,
     )
 
 # === Main run loop ===
@@ -109,6 +124,7 @@ if __name__ == "__main__":
     print("\nanswer_btx4:", result_btx4["result"])
     
      # === Test without vectorDB ===
+    print("\n===================================")
     print("\n>>> TEST 2: Without vectorDB (no retrieval)")
     llm = get_local_llm()  # just raw LLM
     raw_answer = llm.invoke("Suggest an algorithm for encryption of IoT devices")

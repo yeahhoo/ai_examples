@@ -24,6 +24,26 @@ pip install langchain langgraph langchain-openai langchain_groq langchain-google
 pip freeze > requirements.txt
 ```
 
+Also, don't forget to define environment variables in the file ".env"
+
+```bash
+TODO define list
+```
+
+## Configurating graph visualization via LangFuse
+
+TODO
+
+## Launch
+
+To launch whatever script you want just run the command:
+
+```bash
+python src/main.py
+```
+
+
+
 ## Clean-up
 
 Once you are done with the work you can launch:

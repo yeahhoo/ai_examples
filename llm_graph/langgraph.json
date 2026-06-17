@@ -1,0 +1,10 @@
+{
+    "$schema": "https://langgra.ph/schema.json",
+    "python_version": "3.11",
+    "dependencies": ["langchain_openai", "."],
+    "graphs": {
+      "agent": "./src/maip.py:app",
+      "simple_graph": "./src/simple_graph.py:graph"
+    },
+    "env": ".env"
+  }
